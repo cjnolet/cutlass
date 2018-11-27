@@ -34,6 +34,7 @@
 
 namespace cutlass {
 
+
 /******************************************************************************
  * Static math utilities
  ******************************************************************************/
@@ -41,12 +42,22 @@ namespace cutlass {
 /**
  * Statically determine if N is a power-of-two
  */
+
+#ifndef _CUTLASS_MATH_IS_POW2
+#define _CUTLASS_MATH_IS_POW2
+
 template <int N>
 struct is_pow2 : platform::integral_constant<bool, (N & (N - 1)) == 0> {};
+
+#define _CUTLASS_MATH_IS_POW2
 
 /**
  * Statically determine log2(N), rounded down
  */
+
+#ifndef _CUTLASS_MATH_LOG2_DOWN
+#define _CUTLASS_MATH_LOG2_DOWN
+
 template <int N, int CurrentVal = N, int Count = 0>
 struct log2_down {
   /// Static logarithm value
@@ -59,9 +70,15 @@ struct log2_down<N, 1, Count> {
   enum { value = Count };
 };
 
+#endif 
+
 /**
  * Statically determine log2(N), rounded up
  */
+
+#ifndef _CUTLASS_MATH_LOG2_UP
+#define _CUTLASS_MATH_LOG2_UP
+
 template <int N, int CurrentVal = N, int Count = 0>
 struct log2_up {
   /// Static logarithm value
@@ -74,24 +91,38 @@ struct log2_up<N, 1, Count> {
   enum { value = ((1 << Count) < N) ? Count + 1 : Count };
 };
 
+#endif
+
 /**
  * Statically estimate sqrt(N) to the nearest power-of-two
  */
+
+#ifndef _CUTLASS_MATH_SQRT_EST
+#define _CUTLASS_MATH_SQRT_EST
+
 template <int N>
 struct sqrt_est {
   enum { value = 1 << (log2_up<N>::value / 2) };
 };
 
+#endif
+
 /**
  * For performing a constant-division with a compile-time assertion that the
  * Divisor evenly-divides the Dividend.
  */
+
+#ifndef _CUTLASS_MATH_DIVIDE_ASSERT
+#define _CUTLASS_MATH_DIVIDE_ASSERT
+
 template <int Dividend, int Divisor>
 struct divide_assert {
   enum { value = Dividend / Divisor };
 
   static_assert((Dividend % Divisor == 0), "Not an even multiple");
 };
+
+#endif
 
 /******************************************************************************
  * Rounding
@@ -100,14 +131,24 @@ struct divide_assert {
 /**
  * Round dividend up to the nearest multiple of divisor
  */
+
+#ifndef _CUTLASS_MATH_ROUND_NEAREST
+#define _CUTLASS_MATH_ROUND_NEAREST
+
 template <typename dividend_t, typename divisor_t>
 CUTLASS_HOST_DEVICE dividend_t round_nearest(dividend_t dividend, divisor_t divisor) {
   return ((dividend + divisor - 1) / divisor) * divisor;
 }
 
+#endif
+
 /**
  * Greatest common divisor
  */
+
+#ifndef _CUTLASS_MATH_GCD
+#define _CUTLASS_MATH_GCD
+
 template <typename value_t>
 CUTLASS_HOST_DEVICE value_t gcd(value_t a, value_t b) {
   for (;;) {
@@ -118,6 +159,7 @@ CUTLASS_HOST_DEVICE value_t gcd(value_t a, value_t b) {
   }
 }
 
+
 /**
  * Least common multiple
  */
@@ -127,5 +169,7 @@ CUTLASS_HOST_DEVICE value_t lcm(value_t a, value_t b) {
 
   return temp ? (a / temp * b) : 0;
 }
+
+#endif
 
 }  // namespace cutlass
